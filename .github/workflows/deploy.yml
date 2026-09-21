@@ -9,38 +9,17 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Клонируем репозиторий
+      - name: Клонируем репозиторий
         uses: actions/checkout@v4
 
-      - name: 🐳 Собираем Docker-образ
+      - name: Собираем Docker-образ
         run: docker build -f Dockerfile.prod -t arena-duel:${{ github.sha }} .
 
-      - name: 🧪 Проверяем, что контейнер запускается
+      - name: Проверяем запуск контейнера
         run: |
           docker run -d --name arena-test -p 8080:80 arena-duel:${{ github.sha }}
           sleep 5
           curl -f http://localhost:8080/ > /dev/null || exit 1
-          echo "✅ Приложение работает!"
+          echo "Приложение работает"
           docker stop arena-test
           docker rm arena-test
-
-      - name: 🧹 Проверяем docker-compose
-        run: docker-compose config
-
-  deploy-pages:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - id: deployment
-        uses: actions/deploy-pages@v4
