@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  arena:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: arena-duel
+    image: arena-duel:latest
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
