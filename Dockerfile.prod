@@ -1,0 +1,19 @@
+# Этап 1: Сборка (builder)
+FROM alpine:3.19 AS builder
+WORKDIR /app
+COPY index.html .
+RUN echo "Build stage: preparing static assets"
+
+# Этап 2: Runtime
+FROM nginx:1.25-alpine
+LABEL maintainer="Арена: Дуэль"
+LABEL description="Telegram Mini App для школьных викторин"
+
+COPY --from=builder /app/index.html /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -qO- http://localhost/ || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
